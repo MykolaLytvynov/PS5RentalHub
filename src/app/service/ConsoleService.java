@@ -40,14 +40,14 @@ public class ConsoleService {
     }
 
     private Set<String> getUsedConsoleSerialNumbers(Date startDate, Date endDate) {
-        List<Rental> rentals = RentalCSVManager.getInstance().readAllFromCSV();
+        List<Rental> rentals = RentalCSVManager.getInstance().readActualRentalsFromCSV();
 
         // Всі серійні номери консолей, які в цей період вже зайняті
         return rentals.stream()
                 .filter(rental -> (rental.getStart().equals(startDate) || rental.getEnd().equals(endDate))
                         || (rental.getStart().after(startDate) && rental.getStart().before(endDate))
                         || (rental.getEnd().after(startDate) && rental.getEnd().before(endDate)))
-                .map(rental -> rental.getSerialNumberOfConsole())
+                .map(Rental::getSerialNumberOfConsole)
                 .collect(Collectors.toSet());
     }
 }
