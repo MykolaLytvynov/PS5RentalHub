@@ -17,6 +17,6 @@ public class RentalService {
     }
 
     public void add(Rental rental) {
-        RentalCSVManager.getInstance().saveToCSV(rental);
+        RentalCSVManager.getInstance().saveActualRentalToCSV(rental);
     }
 }

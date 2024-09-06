@@ -7,11 +7,12 @@ import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 public class RentalCSVManager {
-    private static final String TITLE = "Початок оренди,Кінець оренди,Ім'я замовника," +
+    private static final String TITLE_FOR_RENTALS = "Початок оренди,Кінець оренди,Ім'я замовника," +
             "Паспортні дані,Телефон,Серійний номер консолі";
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
     private static RentalCSVManager rentalCSVManager;
@@ -26,8 +27,7 @@ public class RentalCSVManager {
     }
 
     // Метод для створення файлу та запису заголовків
-    private void createFileWithHeader() {
-        String filePath = getPath();
+    private void createFileWithHeader(String filePath) {
         File file = new File(filePath);
         // Створення файлу, якщо він не існує
         if (!file.exists()) {
@@ -35,16 +35,21 @@ public class RentalCSVManager {
                  BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
                  PrintWriter printWriter = new PrintWriter(bufferedWriter)) {
                 // Запис заголовків у файл
-                printWriter.println(TITLE);
+                printWriter.println(TITLE_FOR_RENTALS);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
     }
 
-    public void saveToCSV(Rental rental) {
-        createFileWithHeader();
-        try (FileWriter fileWriter = new FileWriter(getPath(), true);
+    public void saveActualRentalToCSV(Rental rental) {
+        String actualRentalsPath = getActualRentalsPath();
+        saveToCSV(rental, actualRentalsPath);
+    }
+
+    public void saveToCSV(Rental rental, String filePath) {
+        createFileWithHeader(filePath);
+        try (FileWriter fileWriter = new FileWriter(filePath, true);
              BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
              PrintWriter printWriter = new PrintWriter(bufferedWriter)) {
 
@@ -62,11 +67,16 @@ public class RentalCSVManager {
         }
     }
 
-    public List<Rental> readAllFromCSV() {
-        createFileWithHeader();
+    public List<Rental> readActualRentalsFromCSV() {
+        String actualRentalsPath = getActualRentalsPath();
+        return readAllFromCSV(actualRentalsPath);
+    }
+
+    public List<Rental> readAllFromCSV(String filePath) {
+        createFileWithHeader(filePath);
         List<Rental> rentals = new ArrayList<>();
 
-        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(getPath()))) {
+        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(filePath))) {
             String line;
             bufferedReader.readLine(); // Пропустити заголовок
 
@@ -103,11 +113,52 @@ public class RentalCSVManager {
         return new Rental(start, end, employeeName, passportId, phone, serialNumberOfConsole);
     }
 
-    private String getPath() {
+    private String getHistoryPath() {
         return new StringBuilder()
                 .append(ConfigManager.getConfigValue("csv.file.path"))
-                .append("/rentals.csv")
+                .append("/history.csv")
                 .toString();
     }
+
+    private String getActualRentalsPath() {
+        return new StringBuilder()
+                .append(ConfigManager.getConfigValue("csv.file.path"))
+                .append("/actual-rentals.csv")
+                .toString();
+    }
+
+    public void refreshRentals() {
+        List<Rental> checkingActualRentals = readActualRentalsFromCSV();
+        if (!checkingActualRentals.isEmpty()) {
+            List<Rental> checkedActualRentals = new ArrayList<>();
+
+            Date today = getTodayWithoutTime();
+
+            for (Rental checkingRental : checkingActualRentals) {
+                if (checkingRental.getEnd().before(today)) {
+                    saveToCSV(checkingRental, getHistoryPath());
+                } else checkedActualRentals.add(checkingRental);
+            }
+
+            // Видаляємо старий файл
+            String actualRentalsPath = getActualRentalsPath();
+            File actualRentalsFile = new File(actualRentalsPath);
+            actualRentalsFile.delete();
+
+            // Перезаписуємо файл новими значеннями через stream
+            checkedActualRentals.stream().forEach(this::saveActualRentalToCSV);
+        }
+    }
+
+    private Date getTodayWithoutTime() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+
+        return calendar.getTime();
+    }
+
 }
 
