@@ -1,7 +1,6 @@
 package app.service;
 
 import app.config.ConfigManager;
-import app.cvs.RentalCSVManager;
 import app.model.Rental;
 
 import java.util.Date;
@@ -12,6 +11,7 @@ import java.util.stream.Collectors;
 
 public class ConsoleService {
     private static ConsoleService consoleService;
+    private final RentalService rentalService = RentalService.getInstance();
 
     private ConsoleService() {
     }
@@ -40,7 +40,7 @@ public class ConsoleService {
     }
 
     private Set<String> getUsedConsoleSerialNumbers(Date startDate, Date endDate) {
-        List<Rental> rentals = RentalCSVManager.getInstance().readActualRentalsFromCSV();
+        List<Rental> rentals = rentalService.getActualRentals();
 
         // Всі серійні номери консолей, які в цей період вже зайняті
         return rentals.stream()
