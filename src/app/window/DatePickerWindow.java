@@ -38,7 +38,7 @@ public class DatePickerWindow {
 
     private JSpinner createSpinner() {
         Date today = DateUtil.getTodayWithoutTime();
-        SpinnerDateModel dateModel = new SpinnerDateModel(today, null, null, Calendar.DAY_OF_MONTH);
+        SpinnerDateModel dateModel = new SpinnerDateModel(today, today, null, Calendar.DAY_OF_MONTH);
 
         JSpinner spinner = new JSpinner(dateModel);
         JSpinner.DateEditor dateEditor = new JSpinner.DateEditor(spinner, "dd-MM-yyyy");
