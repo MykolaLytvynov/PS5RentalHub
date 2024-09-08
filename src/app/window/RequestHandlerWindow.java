@@ -6,6 +6,7 @@ import app.service.RentalService;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Date;
+import java.util.regex.Pattern;
 
 public class RequestHandlerWindow {
 
@@ -17,6 +18,8 @@ public class RequestHandlerWindow {
     private Date start;
     private Date end;
     private String serialNumberOfConsole;
+    private static final String OLD_PASSPORT_REGEX = "^[A-Za-z]{2}\\d{6}$";
+    private static final String NEW_PASSPORT_REGEX = "^\\d{9}$";
 
     public RequestHandlerWindow() {
         requestFrame = new JFrame("Введіть дані для оренди");
@@ -63,6 +66,8 @@ public class RequestHandlerWindow {
         Rental rental = new Rental(start, end, name, passportId,
                 phoneNumber, serialNumberOfConsole);
 
+        if (!checkPassport(passportId)) return;
+
         if (!checkEnteredData(rental)) return;
 
         rentalService.add(rental);
@@ -73,6 +78,18 @@ public class RequestHandlerWindow {
                 JOptionPane.INFORMATION_MESSAGE);
 
         requestFrame.dispose();
+    }
+
+    private boolean checkPassport(String passportId) {
+        if(!Pattern.matches(OLD_PASSPORT_REGEX, passportId)
+                && !Pattern.matches(NEW_PASSPORT_REGEX, passportId)) {
+            JOptionPane.showMessageDialog(requestFrame,
+                    "Паспорт неможливий",
+                    "Помилка",
+                    JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+        return true;
     }
 
     private boolean checkEnteredData(Rental rental) {
