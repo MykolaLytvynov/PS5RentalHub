@@ -2,6 +2,7 @@ package app.cvs;
 
 import app.config.ConfigManager;
 import app.model.Rental;
+import app.util.DateUtil;
 
 import java.io.*;
 import java.text.ParseException;
@@ -132,7 +133,7 @@ public class RentalCSVManager {
         if (!checkingActualRentals.isEmpty()) {
             List<Rental> checkedActualRentals = new ArrayList<>();
 
-            Date today = getTodayWithoutTime();
+            Date today = DateUtil.getTodayWithoutTime();
 
             for (Rental checkingRental : checkingActualRentals) {
                 if (checkingRental.getEnd().before(today)) {
@@ -148,16 +149,6 @@ public class RentalCSVManager {
             // Перезаписуємо файл новими значеннями через stream
             checkedActualRentals.stream().forEach(this::saveActualRentalToCSV);
         }
-    }
-
-    private Date getTodayWithoutTime() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-
-        return calendar.getTime();
     }
 
 }

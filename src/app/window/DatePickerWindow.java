@@ -1,6 +1,7 @@
 package app.window;
 
 import app.service.ConsoleService;
+import app.util.DateUtil;
 
 import javax.swing.*;
 import java.awt.*;
@@ -36,15 +37,8 @@ public class DatePickerWindow {
     }
 
     private JSpinner createSpinner() {
-        // Встановлюємо початковий час на початок дня (00:00:00)
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-
-        Date date = calendar.getTime();
-        SpinnerDateModel dateModel = new SpinnerDateModel(date, null, null, Calendar.DAY_OF_MONTH);
+        Date today = DateUtil.getTodayWithoutTime();
+        SpinnerDateModel dateModel = new SpinnerDateModel(today, null, null, Calendar.DAY_OF_MONTH);
 
         JSpinner spinner = new JSpinner(dateModel);
         JSpinner.DateEditor dateEditor = new JSpinner.DateEditor(spinner, "dd-MM-yyyy");
