@@ -1,5 +1,7 @@
 package app.config;
 
+import app.exception.ErrorHandler;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,7 +14,7 @@ public class ConfigManager {
         try (InputStream input = new FileInputStream("config/app.properties")) {
             properties.load(input);
         } catch (IOException ex) {
-            ex.printStackTrace();
+            ErrorHandler.handleError(ex.getMessage());
         }
     }
 

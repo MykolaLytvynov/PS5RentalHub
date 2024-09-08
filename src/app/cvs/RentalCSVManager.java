@@ -1,6 +1,7 @@
 package app.cvs;
 
 import app.config.ConfigManager;
+import app.exception.ErrorHandler;
 import app.model.Rental;
 import app.util.DateUtil;
 
@@ -38,7 +39,7 @@ public class RentalCSVManager {
                 // Запис заголовків у файл
                 printWriter.println(TITLE_FOR_RENTALS);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                ErrorHandler.handleError(e.getMessage());
             }
         }
     }
@@ -64,7 +65,7 @@ public class RentalCSVManager {
 
             printWriter.println(csvItem);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            ErrorHandler.handleError(e.getMessage());
         }
     }
 
@@ -90,20 +91,20 @@ public class RentalCSVManager {
                     .map(this::fromCSV)
                     .forEach(rentals::add);
 
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (IOException e) {
+            ErrorHandler.handleError(e.getMessage());
         }
         return rentals;
     }
 
     private Rental fromCSV(String csvLine) {
         String[] fields = csvLine.split(",");
-        Date start, end;
+        Date start = null, end = null;
         try {
             start = dateFormat.parse(fields[0]);
             end = dateFormat.parse(fields[1]);
         } catch (ParseException e) {
-            throw new RuntimeException(e);
+            ErrorHandler.handleError(e.getMessage());
         }
 
         String employeeName = fields[2];
