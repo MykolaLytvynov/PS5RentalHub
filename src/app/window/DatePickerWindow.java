@@ -51,6 +51,8 @@ public class DatePickerWindow {
         Date startDate = ((SpinnerDateModel) startDateSpinner.getModel()).getDate();
         Date endDate = ((SpinnerDateModel) endDateSpinner.getModel()).getDate();
 
+        if(!validateDates(startDate, endDate)) return;
+
         Optional<String> freeConsole = consoleService.getFreeConsole(startDate, endDate);
 
         freeConsole.ifPresentOrElse(
@@ -66,5 +68,17 @@ public class DatePickerWindow {
 
         // Закриття вікна після підтвердження
         dateFrame.dispose();
+    }
+
+    private boolean validateDates(Date startDate, Date endDate) {
+        if (startDate.after(endDate)) {
+            JOptionPane.showMessageDialog(dateFrame,
+                    "Кінець оренди не повинен бути раніше ніж початок оренди.",
+                    "Помилка",
+                    JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+
+        return true;
     }
 }
