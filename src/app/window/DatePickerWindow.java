@@ -38,7 +38,7 @@ public class DatePickerWindow {
 
     private JSpinner createSpinner() {
         Date today = DateUtil.getTodayWithoutTime();
-        SpinnerDateModel dateModel = new SpinnerDateModel(today, null, null, Calendar.DAY_OF_MONTH);
+        SpinnerDateModel dateModel = new SpinnerDateModel(today, today, null, Calendar.DAY_OF_MONTH);
 
         JSpinner spinner = new JSpinner(dateModel);
         JSpinner.DateEditor dateEditor = new JSpinner.DateEditor(spinner, "dd-MM-yyyy");
@@ -50,6 +50,8 @@ public class DatePickerWindow {
     private void handleConfirm(JSpinner startDateSpinner, JSpinner endDateSpinner) {
         Date startDate = ((SpinnerDateModel) startDateSpinner.getModel()).getDate();
         Date endDate = ((SpinnerDateModel) endDateSpinner.getModel()).getDate();
+
+        if(!validateDates(startDate, endDate)) return;
 
         Optional<String> freeConsole = consoleService.getFreeConsole(startDate, endDate);
 
@@ -66,5 +68,17 @@ public class DatePickerWindow {
 
         // Закриття вікна після підтвердження
         dateFrame.dispose();
+    }
+
+    private boolean validateDates(Date startDate, Date endDate) {
+        if (startDate.after(endDate)) {
+            JOptionPane.showMessageDialog(dateFrame,
+                    "Кінець оренди не повинен бути раніше ніж початок оренди.",
+                    "Помилка",
+                    JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+
+        return true;
     }
 }
