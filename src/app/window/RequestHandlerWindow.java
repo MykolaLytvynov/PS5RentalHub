@@ -63,6 +63,8 @@ public class RequestHandlerWindow {
         Rental rental = new Rental(start, end, name, passportId,
                 phoneNumber, serialNumberOfConsole);
 
+        if (!checkEnteredData(rental)) return;
+
         rentalService.add(rental);
 
         JOptionPane.showMessageDialog(requestFrame,
@@ -71,5 +73,30 @@ public class RequestHandlerWindow {
                 JOptionPane.INFORMATION_MESSAGE);
 
         requestFrame.dispose();
+    }
+
+    private boolean checkEnteredData(Rental rental) {
+
+        String message = """
+                Перевірте дані
+                
+                Номер телефону: %s;
+                Ім'я: %s;
+                Паспортні дані: %s
+                
+                Продовжити?
+                """.formatted(
+                        rental.getPhone(),
+                        rental.getEmployeeName(),
+                        rental.getPassportId()
+        );
+
+        int response = JOptionPane.showConfirmDialog(requestFrame,
+                message,
+                "Перевірка",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
+
+        return response == JOptionPane.OK_OPTION;
     }
 }
